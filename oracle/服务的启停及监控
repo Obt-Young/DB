@@ -1,0 +1,28 @@
+1. linux下启动oracle 
+su - oracle 
+sqlplus /nolog 
+conn /as sysdba 
+startup 
+exit 
+lsnrctl start 
+exit 
+
+2. linux下关闭oracle 
+su - oracle 
+sqlplus /nolog 
+conn /as sysdba 
+shutdown immediate 
+exit 
+lsnrctl stop 
+exit 
+
+3、启动监听器 
+oracle@suse92:~> lsnrctl start 
+
+4、停止监听器 
+oracle@suse92:~> lsnrctl stop 
+
+5、查看监听器状态 
+oracle@suse92:~> lsnrctl 
+LSNRCTL> status 
+LSNRCTL> exit 
