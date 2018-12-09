@@ -1,0 +1,30 @@
+之前在自己的笔记本上安装了Oracle数据库，发现运行Oracle实例后，被Oracle吃掉了1.5G内存，那么怎么让它少消耗一些内存呢？毕竟我的笔记本只是开发环境，不需要多少内存。通过查阅文档，发现Oracle可以设置sga和memory。
+
+
+
+查看方式：
+
+show parameter sga;
+
+show parameter memory;
+
+通过这两个sql可以查看当前Oracle数据库的设置，然后通过
+
+alter system set sga_max_size=200M scope=spfile ;  
+
+alter system set sga_target=200M scope=spfile ;  
+
+
+alter system set memory_max_target =400M scope=spfile ;  
+
+alter system set memory_target=400M scope=spfile ;  
+
+这样的几个SQL修改参数，然后重启Oracle使这些参数生效就可以了。
+
+
+当然，正式环境请不要这样设置，请根据实际使用情况调整参数。
+--------------------- 
+作者：唐周 
+来源：CSDN 
+原文：https://blog.csdn.net/xxcxc/article/details/52959936 
+版权声明：本文为博主原创文章，转载请附上博文链接！
