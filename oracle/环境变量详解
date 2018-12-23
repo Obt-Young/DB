@@ -1,0 +1,5 @@
+#1 - ORACLE_HOME和ORACLE_BASE的区别：
+https://blog.csdn.net/m0_37814112/article/details/7737386
+
+ORACLE_BASE一般定位到xxx/app/oracle目录
+ORACLE_HOME定位到oracle的直接安装目录，一般是$ORACLE_BASE/product/11.2.0/dbhome_1  （这个目录下有/bin目录）
