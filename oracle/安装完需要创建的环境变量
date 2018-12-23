@@ -1,2 +1,7 @@
 将如下内容写入oracle用户的启动脚本中：
 
+export ORACLE_BASE=/home/oracle/app/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/dbhome_1
+export ORACLE_SID=ss
+export ORACLE_HOME_LISTNER=$ORACLE_HOME
+export PATH=$PATH:$ORACLE_HOME/bin
