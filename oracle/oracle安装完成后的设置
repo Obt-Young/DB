@@ -1,165 +1,64 @@
-安装必须以前面建立的oracle用户进行
-console login:oracle
-password:
-安装必须在xwin下进行
-(当然如果你是在level 5下图形界面下启动linux,就不需要此步骤了,但多数服务器习惯是以level 3命令行模式启动)
-startx
-在xwin下，打开terminal window,在terminal window下执行下面指令,打开oracle install图形安装界面
-$ cd /mnt/cd/database/
-$ ./runInstaller
+#1  --  oracle 环境变量的设置
+将如下内容写入oracle用户的.bash_profile
 
-oracle install安装界面
-Oracle Home Location: 缺省是/home/oracle/oracle/product/10.2.0/db_1
-                      记得前面建立的/u01/app/oracle么？
-                      这里改成/u01/app/oracle/product/10.2.0/db_1
-                      回头$ORACLE_HOME也要设成/u01/app/oracle/product/10.2.0/db_1
-安装时第三个页面是check页面，这个页面会check前面设置的各种prepare,仔细对照，哪项failed了，就回去重设
-安装进行中...
-
-安装完后，记得在最后的password管理页面，使一些普通用户（比如scott用户）生效且设密码
-
-安装界面到最后,会跳出一个窗口,显示如下:
-The following configuration scripts need to be executed as "root" user.
-/home/oracle/orclinventory/orainstRoot.sh
-/u01/app/oracle/product/10.2.0/db_1/root.sh
-你需要另开一个terminal命令窗口,照上面的提示执行:
-先su到root下
-$su -
-# 
-执行/home/oracle/oraInventory/orainstRoot.sh
-[root@oracle ~]# /home/oracle/oraInventory/orainstRoot.sh
-Changing permissions of /home/oracle/oraInventory to 770.
-Changing groupname of /home/oracle/oraInventory to oinstall.
-执行/u01/app/oracle/product/10.2.0/db_1/root.sh
-[root@oracle ~]# /u01/app/oracle/product/10.2.0/db_1/root.sh
-Running Oracle10 root.sh script...
-
-The following environment variables are set as:
-    ORACLE_OWNER= oracle
-    ORACLE_HOME=  /u01/app/oracle/product/10.2.0/db_1
-
-Enter the full pathname of the local bin directory: [/usr/local/bin]:
-   Copying dbhome to /usr/local/bin ...
-   Copying oraenv to /usr/local/bin ...
-   Copying coraenv to /usr/local/bin ...
+export ORACLE_BASE=/home/oracle/app/oracle                    #oracle的终极根目录
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/dbhome_1       #oracle软件的安装目录
+export ORACLE_SID=ss                                          #sid，安装oracle时指定
+export ORACLE_HOME_LISTNER=$ORACLE_HOME                       #oracle的网络监听程序的启动目录
+export PATH=$PATH:$ORACLE_HOME/bin                            #oracle所有可执行文件的目录
 
 
-Creating /etc/oratab file...      
-Entries will be added to the /etc/oratab file as needed by
-Database Configuration Assistant when a database is created
-Finished running generic part of root.sh script.
-Now product-specific root actions will be performed. 
-
-
-安装完成后，安装程序最后会显示下列信息，请记住
-dababase name:orcl
-SID:orcl
-password for sys,system: xxxx
-database control url: http://url:1158/em
-
-
-oracle 安装后的起用
-以 oracle 身份登录到 Linux。设置环境变量
-[oracle@oracle ~]$ cat .bash_profile
-# .bash_profile
-
-umask 022
-
-# Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-        . ~/.bashrc
-fi
-
-# User specific environment and startup programs
-
-PATH=$PATH:$HOME/bin
-
-export PATH
-unset USERNAME
-
-export ORACLE_BASE=/u01/app/oracle
-export ORACLE_SID=orcl
-export ORACLE_HOME=$ORACLE_BASE/product/10.2.0/db_1/
-export ORACLE_HOME_LISTNER=$ORACLE_HOME
-export PATH=$PATH:$ORACLE_HOME/bin
-修改dbstart文件
-vi dbstart
+#2  --  修改dbstart文件(设置一键启动)
+vi $ORACLE_HOME/bin/dbstart
 # Set this to bring up Oracle Net Listener
-# ORACLE_HOME_LISTNER=/ade/vikrkuma_new/oracle         把此行注释掉,因为此句已经移到上面
-                                                       的.bash_profile中了
+# ORACLE_HOME_LISTNER=/ade/vikrkuma_new/oracle         把此行注释掉,因为此句已经移到上面的.bash_profile中了
 以oracle身份执行dbstart,启动oracle
 [oracle@oracle bin]$ ./dbstart
 
- 执行dbstart,但只起了listener,没起数据库服务，为什么？
+
+#3  -- 启动数据库 
+执行dbstart,但只起了listener,没起数据库服务，为什么？
 [oracle@oracle bin]$ ps -ef
 root      3824  3713  0 09:31 pts/0    00:00:00 su - oracle
 oracle    3825  3824  0 09:31 pts/0    00:00:00 -bash
 oracle    3900     1  5 09:32 ?        00:00:00 /u01/app/oracle/product/10.2.0/db_1//bin/tnslsnr LISTENER -inherit
 原因:
 [root@oracle ~]# cat /etc/oratab
-#
-# This file is used by ORACLE utilities.  It is created by root.sh
-# and updated by the Database Configuration Assistant when creating
-# a database.
-
-# A colon, ':', is used as the field terminator.  A new line terminates
-# the entry.  Lines beginning with a pound sign, '#', are comments.
-#
-# Entries are of the form:
-#   $ORACLE_SID:$ORACLE_HOME:<N|Y>:
-#
-# The first and second fields are the system identifier and home
-# directory of the database respectively.  The third filed indicates
-# to the dbstart utility that the database should , "Y", or should not,
-# "N", be brought up at system boot time.
-#
-# Multiple entries with the same $ORACLE_SID are not allowed.
-#
-#
-orcl:/u01/app/oracle/product/10.2.0/db_1:N      此行初始值为N不支持dbstart脚本启动
-修改N为Y
+ss:/home/oracle/app/oracle/product/11.2.0/dbhome_1:N      (此行初始值为N不支持dbstart脚本启动)
+修改N为Y：
 [root@oracle ~]# vi /etc/oratab
-orcl:/u01/app/oracle/product/10.2.0/db_1:Y
+ss:/home/oracle/app/oracle/product/11.2.0/dbhome_1:Y
 重新dbstart,能看到instance被启动了
-
 [oracle@oracle bin]$ dbstart
-Processing Database instance "orcl": log file /u01/app/oracle/product/10.2.0/db_1/startup.log
-
+Processing Database instance "ss": log file /home/oracle/app/oracle/product/11.2.0/dbhome_1/startup.log
 [oracle@oracle bin]$ ps -ef
-oracle    3900     1  0 09:32 ?        00:00:00 /u01/app/oracle/product/10.2.0/db_1//bin/tnslsnr LISTENER -inherit
-oracle    3996     1  0 09:46 ?        00:00:00 ora_pmon_orcl
-oracle    3998     1  0 09:46 ?        00:00:00 ora_psp0_orcl
-oracle    4000     1  0 09:46 ?        00:00:00 ora_mman_orcl
-oracle    4002     1  0 09:46 ?        00:00:00 ora_dbw0_orcl
-oracle    4004     1  0 09:46 ?        00:00:00 ora_lgwr_orcl
-oracle    4006     1  0 09:46 ?        00:00:00 ora_ckpt_orcl
-oracle    4008     1  0 09:46 ?        00:00:05 ora_smon_orcl
-oracle    4010     1  0 09:46 ?        00:00:00 ora_reco_orcl
-oracle    4012     1  0 09:46 ?        00:00:00 ora_cjq0_orcl
-oracle    4014     1  0 09:46 ?        00:00:02 ora_mmon_orcl
-oracle    4016     1  0 09:46 ?        00:00:00 ora_mmnl_orcl
-oracle    4018     1  0 09:46 ?        00:00:00 ora_d000_orcl
-oracle    4020     1  0 09:46 ?        00:00:00 ora_s000_orcl
-oracle    4028     1  0 09:46 ?        00:00:00 ora_qmnc_orcl
-oracle    4044     1  0 09:46 ?        00:00:00 ora_q000_orcl
-oracle    4050     1  0 09:47 ?        00:00:00 ora_q001_orcl
-root      4063  2751  0 09:55 ?        00:00:00 sshd: root@pts/1
-root      4065  4063  0 09:55 pts/1    00:00:00 -bash
-oracle    4266     1  0 10:10 ?        00:00:00 ora_pmon_orcl
-oracle    4268     1  0 10:10 ?        00:00:00 ora_psp0_orcl
-oracle    4270     1  0 10:10 ?        00:00:00 ora_mman_orcl
-oracle    4272     1  0 10:10 ?        00:00:00 ora_dbw0_orcl
-oracle    4274     1  0 10:10 ?        00:00:00 ora_lgwr_orcl
-oracle    4276     1  0 10:10 ?        00:00:00 ora_ckpt_orcl
-oracle    4278     1  0 10:10 ?        00:00:00 ora_smon_orcl
-oracle    4280     1  0 10:10 ?        00:00:00 ora_reco_orcl
-oracle    4282     1  0 10:10 ?        00:00:00 ora_cjq0_orcl
-oracle    4284     1  0 10:10 ?        00:00:00 ora_mmon_orcl
-oracle    4286     1  0 10:10 ?        00:00:00 ora_mmnl_orcl
-oracle    4288     1  0 10:10 ?        00:00:00 ora_d000_orcl
-oracle    4290     1  0 10:10 ?        00:00:00 ora_s000_orcl
-oracle    4293     1  0 10:10 ?        00:00:00 ora_j000_orcl
-oracle    4294  3825  0 10:11 pts/0    00:00:00 ps -ef
+oracle    5691     1  0 19:57 ?        00:00:00 /home/oracle/app/oracle/product/11.2.0/dbhome_1/bin/tnslsnr LISTENER -inherit
+root      6408  6356  0 20:05 pts/1    00:00:00 su - oracle
+oracle    6409  6408  0 20:05 pts/1    00:00:00 -bash
+oracle    6747     1  0 20:08 ?        00:00:00 ora_pmon_ss
+oracle    6749     1  0 20:08 ?        00:00:00 ora_vktm_ss
+oracle    6753     1  0 20:08 ?        00:00:00 ora_gen0_ss
+oracle    6755     1  0 20:08 ?        00:00:00 ora_diag_ss
+oracle    6757     1  0 20:08 ?        00:00:00 ora_dbrm_ss
+oracle    6759     1  0 20:08 ?        00:00:00 ora_psp0_ss
+oracle    6761     1  0 20:08 ?        00:00:00 ora_dia0_ss
+oracle    6763     1 49 20:08 ?        00:00:09 ora_mman_ss
+oracle    6765     1  0 20:08 ?        00:00:00 ora_dbw0_ss
+oracle    6767     1  0 20:08 ?        00:00:00 ora_lgwr_ss
+oracle    6769     1  0 20:08 ?        00:00:00 ora_ckpt_ss
+oracle    6771     1  2 20:08 ?        00:00:00 ora_smon_ss
+oracle    6773     1  0 20:08 ?        00:00:00 ora_reco_ss
+oracle    6775     1  2 20:08 ?        00:00:00 ora_mmon_ss
+oracle    6777     1  0 20:08 ?        00:00:00 ora_mmnl_ss
+oracle    6779     1  0 20:08 ?        00:00:00 ora_d000_ss
+oracle    6781     1  0 20:08 ?        00:00:00 ora_s000_ss
+oracle    6825     1  1 20:09 ?        00:00:00 ora_qmnc_ss
+oracle    6890  6409  0 20:09 pts/1    00:00:00 ps -ef
+oracle    6891  6409  0 20:09 pts/1    00:00:00 grep --color=auto oracle
+
+
+
+#4  --  其他问题解决
 也有可能启动时,报如下错误:
 dbstart启动时，报错“Failed to auto-start Oracle Net Listene using /ade/vikrkuma_new/oracle/bin/tnslsnr”
 [oracle@oracle bin]$ ./dbstart
