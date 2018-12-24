@@ -23,3 +23,4 @@ alter system set memory_target=400M scope=spfile ;  
 
 
 
+注：如果想缩减内存，需要先使用大内存，把上述动作都做了，然后重新设置虚拟机的内存，然后重启虚拟机和数据库即可
