@@ -1,0 +1,16 @@
+#1  -  官网下载相应的安装包
+ 一般共两个zip包，解压到同一个目录下，unzip -d dir xxx_1.zip
+                                   unzip -d dir xxx_2.zip
+                                   
+#2  -  使用gnome直接图形化安装，
+安装linux的时候直接使用gnome安装，减少麻烦，gnome的可选项中要勾选x window
+
+#3  -  安装过程中很大可能会出现依赖库缺失
+使用yum 和 rpm完成依赖包的补全
+  yum search xxx
+  yum install xxx
+  rpm -ivh xxx.rpm
+  
+#4  -  安装完毕后运行相应的脚本(安装过程中会提示)
+
+#5  -  设置环境变量，见  《oracle安装完成后的设置》 《安装完需要创建的环境变量》
